@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folio — Take-Away System</title>
+ 
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+<!-- Google Fonts: Cormorant Garamond (display) + Plus Jakarta Sans (body) -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+ 
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --espresso:  #1a0e08;
+  --roast:     #2e1a0e;
+  --mahogany:  #5c2e14;
+  --terra:     #c2622f;
+  --amber:     #e07b39;
+  --gold:      #d4a34a;
+  --cream:     #fdf6ee;
+  --parchment: #f5ece0;
+  --bisque:    #e8d5be;
+  --sage:      #4a7c59;
+  --sage-lt:   #6aab7a;
+  --crimson:   #b03030;
+  --muted:     #8a7060;
+  --text:      #2e1a0e;
+  --card:      #ffffff;
+  --border:    #e2d0bc;
+  --r:         16px;
+  --r-sm:      10px;
+  --shadow:    0 4px 20px rgba(26,14,8,.10);
+  --shadow-md: 0 8px 32px rgba(26,14,8,.15);
+  --shadow-lg: 0 20px 60px rgba(26,14,8,.22);
+}
+ 
+/* ═══════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+ 
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+ 
+h1,h2,h3,h4 { font-family: 'Cormorant Garamond', serif; }
+ 
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--parchment); }
+::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 3px; }
+ 
+/* ═══════════════════════════════════════════
+   PAGE SYSTEM
+═══════════════════════════════════════════ */
+.page { display: none; }
+.page.active {
+  display: block;
+  animation: fadeUp .45s cubic-bezier(.4,0,.2,1);
+}
+.page-flex { display: none; }
+.page-flex.active {
+  display: flex;
+  animation: fadeUp .45s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:none; }
+}
+ 
+/* ═══════════════════════════════════════════
+   ── LOGIN PAGE
+═══════════════════════════════════════════ */
+#pg-login {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 15% 85%, rgba(192,98,47,.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(212,163,74,.25) 0%, transparent 50%),
+    linear-gradient(160deg, #1a0e08 0%, #3a1f0e 55%, #1a0e08 100%);
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+ 
+/* Decorative ring SVG accent */
+#pg-login::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,163,74,.12);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: ringPulse 6s ease-in-out infinite;
+}
+#pg-login::after {
+  content: '';
+  position: absolute;
+  width: 900px; height: 900px;
+  border-radius: 50%;
+  border: 1px solid rgba(192,98,47,.08);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: ringPulse 6s ease-in-out infinite .5s;
+}
+@keyframes ringPulse {
+  0%,100% { transform:translate(-50%,-50%) scale(1); opacity:.6; }
+  50%      { transform:translate(-50%,-50%) scale(1.04); opacity:1; }
+}
+ 
+.login-glass {
+  position: relative; z-index: 5;
+  width: 100%; max-width: 420px;
+  background: rgba(253,246,238,.08);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(253,246,238,.14);
+  border-radius: 28px;
+  padding: 50px 42px;
+  box-shadow:
+    0 0 0 1px rgba(212,163,74,.12) inset,
+    var(--shadow-lg);
+  text-align: center;
+  margin: 24px;
+}
+ 
+.login-logomark {
+  width: 68px; height: 68px;
+  background: linear-gradient(135deg, var(--terra), var(--gold));
+  border-radius: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.9rem;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 28px rgba(192,98,47,.45);
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-6px); }
+}
+ 
+.login-glass h1 {
+  font-size: 2.4rem; font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.login-tagline {
+  color: rgba(253,246,238,.55);
+  font-size: .88rem;
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+ 
+.login-btn {
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: .95rem;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: all .28s cubic-bezier(.4,0,.2,1);
+  margin-bottom: 12px;
+  letter-spacing: .3px;
+  position: relative; overflow: hidden;
+}
+.login-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(255,255,255,.12), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.login-btn:hover::after { opacity: 1; }
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0,0,0,.35); }
+.login-btn:active { transform: translateY(0); }
+ 
+.login-btn .btn-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.login-btn .btn-arrow { margin-left: auto; font-size: 1rem; opacity: .7; }
+ 
+.btn-customer { background: linear-gradient(135deg, var(--terra) 0%, #a84e22 100%); color: #fff; }
+.btn-customer .btn-icon { background: rgba(255,255,255,.18); }
+ 
+.btn-admin { background: linear-gradient(135deg, #2e3d5a 0%, #1a2740 100%); color: #fff; }
+.btn-admin .btn-icon { background: rgba(255,255,255,.15); }
+ 
+.login-footer {
+  margin-top: 28px;
+  color: rgba(253,246,238,.3);
+  font-size: .75rem;
+  display: flex; justify-content: center; gap: 20px;
+}
+.login-footer span { display: flex; align-items: center; gap: 5px; }
+ 
+/* ═══════════════════════════════════════════
+   SHARED NAV
+═══════════════════════════════════════════ */
+.top-bar {
+  background: rgba(253,246,238,.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  height: 62px;
+  display: flex; align-items: center;
+  padding: 0 28px;
+  gap: 14px;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 12px rgba(26,14,8,.06);
+}
+.top-bar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--roast);
+  letter-spacing: -0.5px;
+}
+.top-bar-brand em {
+  font-style: normal;
+  color: var(--terra);
+}
+.top-bar-chip {
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: .75rem; font-weight: 600;
+  color: var(--muted);
+}
+.icon-pill {
+  width: 38px; height: 38px;
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--muted);
+  cursor: pointer; transition: all .2s;
+  position: relative;
+}
+.icon-pill:hover { background: var(--bisque); color: var(--text); }
+ 
+.cart-dot {
+  position: absolute; top: -4px; right: -4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--terra); color: #fff;
+  font-size: .62rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+ 
+/* ═══════════════════════════════════════════
+   ── CUSTOMER PAGE
+═══════════════════════════════════════════ */
+#pg-customer { background: var(--cream); }
+ 
+/* Hero */
+.c-hero {
+  background: linear-gradient(135deg, var(--roast) 0%, #4a2510 60%, #2e1a0e 100%);
+  min-height: 300px;
+  display: flex; align-items: center;
+  padding: 48px 40px;
+  position: relative; overflow: hidden;
+}
+.c-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 75% 50%, rgba(212,163,74,.15) 0%, transparent 60%);
+}
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(212,163,74,.2);
+  border: 1px solid rgba(212,163,74,.35);
+  border-radius: 30px; padding: 5px 14px;
+  font-size: .78rem; font-weight: 600; color: var(--gold);
+  margin-bottom: 14px;
+}
+.c-hero h2 {
+  font-size: clamp(1.9rem,5vw,3rem);
+  font-weight: 700; color: var(--cream);
+  line-height: 1.1; margin-bottom: 10px;
+}
+.c-hero h2 em { font-style: italic; color: var(--gold); }
+.c-hero p { color: rgba(253,246,238,.6); font-size: .95rem; max-width: 380px; line-height: 1.6; }
+ 
+/* Floating food emojis */
+.hero-deco {
+  position: absolute; right: 6%; top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px; opacity: .18;
+}
+.hero-deco span { font-size: 3.5rem; animation: heroFloat 5s ease-in-out infinite; }
+.hero-deco span:nth-child(2) { animation-delay: .8s; margin-left: 24px; font-size:2.8rem; }
+.hero-deco span:nth-child(3) { animation-delay: 1.6s; }
+@keyframes heroFloat {
+  0%,100% { transform:translateY(0) rotate(-3deg); }
+  50%      { transform:translateY(-10px) rotate(3deg); }
+}
+ 
+/* Category chips */
+.chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.chip-row::-webkit-scrollbar { display: none; }
+.chip {
+  white-space: nowrap;
+  padding: 7px 18px; border-radius: 30px;
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--muted);
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.chip.on, .chip:hover {
+  background: var(--terra); border-color: var(--terra); color: #fff;
+}
+ 
+/* Menu cards */
+.menu-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s;
+  height: 100%;
+}
+.menu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(192,98,47,.3);
+}
+.menu-thumb {
+  height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.8rem;
+  background: linear-gradient(135deg, var(--parchment), var(--bisque));
+  position: relative;
+}
+.avail-flag {
+  position: absolute; top: 10px; right: 10px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: .7rem; font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+.af-yes { background: rgba(74,124,89,.15); color: var(--sage); border:1px solid rgba(74,124,89,.3); }
+.af-no  { background: rgba(176,48,48,.12); color: var(--crimson); border:1px solid rgba(176,48,48,.25); }
+ 
+.menu-body { padding: 15px 16px 16px; }
+.menu-title { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:700; margin-bottom:3px; }
+.menu-desc  { color:var(--muted); font-size:.78rem; line-height:1.45; margin-bottom:10px; }
+.menu-price { font-size:1.1rem; font-weight:700; color:var(--terra); }
+ 
+.btn-add {
+  width: 100%; margin-top: 10px;
+  padding: 9px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--terra), #a84e22);
+  color: #fff; font-weight: 700; font-size:.85rem;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-add:hover:not(:disabled) { opacity:.88; transform:scale(1.02); }
+.btn-add:active:not(:disabled){ transform:scale(.98); }
+.btn-add:disabled {
+  background: var(--bisque); color: var(--muted);
+  cursor: not-allowed; transform: none;
+}
+ 
+/* In-cart qty widget replaces button */
+.qty-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-top: 10px;
+}
+.q-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--parchment);
+  font-size: 1rem; font-weight: 700; color: var(--text);
+  cursor: pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .15s;
+}
+.q-btn:hover { background: var(--terra); border-color: var(--terra); color: #fff; }
+.q-num { font-weight: 700; font-size: .95rem; min-width: 20px; text-align: center; }
+ 
+/* Cart drawer */
+.cart-scrim {
+  position: fixed; inset: 0; z-index: 490;
+  background: rgba(26,14,8,.45);
+  backdrop-filter: blur(3px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.cart-scrim.on { opacity: 1; pointer-events: all; }
+.cart-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 500;
+  width: min(390px,100vw);
+  background: var(--cream);
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 48px rgba(26,14,8,.2);
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+}
+.cart-panel.on { transform: translateX(0); }
+ 
+.cart-hd {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  background: var(--parchment);
+}
+.cart-hd h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; font-weight: 700; margin: 0;
+}
+.close-x {
+  margin-left: auto;
+  width: 34px; height: 34px; border-radius: 9px;
+  border: 1px solid var(--border); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .18s; color: var(--muted);
+}
+.close-x:hover { background: var(--crimson); color: #fff; border-color: var(--crimson); }
+ 
+.cart-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.cart-empty {
+  text-align: center; padding: 50px 20px;
+  color: var(--muted);
+}
+.cart-empty .ce-icon { font-size: 3.5rem; margin-bottom: 12px; opacity: .45; }
+ 
+.cart-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--border); border-radius: 12px;
+  margin-bottom: 8px;
+}
+.cr-emoji { font-size: 1.7rem; }
+.cr-info  { flex: 1; }
+.cr-name  { font-weight: 600; font-size: .88rem; }
+.cr-price { color: var(--terra); font-size: .8rem; font-weight: 600; }
+ 
+.cart-ft {
+  padding: 18px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--parchment);
+}
+ 
+/* ─── IMPORTANT: No totals computed here ─── */
+/* Total is rendered ONLY from backend response */
+.cart-note {
+  background: rgba(192,98,47,.08);
+  border: 1px dashed rgba(192,98,47,.3);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: .8rem; color: var(--terra);
+  margin-bottom: 14px; line-height: 1.5;
+}
+ 
+.btn-place {
+  width: 100%; padding: 13px;
+  border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--terra), #a84e22);
+  color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700; font-size: .95rem;
+  cursor: pointer; transition: all .25s;
+  box-shadow: 0 6px 20px rgba(192,98,47,.35);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-place:hover { opacity:.9; transform:translateY(-2px); box-shadow:0 10px 28px rgba(192,98,47,.45); }
+.btn-place:disabled { background: var(--bisque); color: var(--muted); box-shadow:none; transform:none; cursor:not-allowed; }
+ 
+/* Order response card */
+#order-response-section { display: none; }
+.order-resp-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  position: relative; overflow: hidden;
+}
+.order-resp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--terra), var(--gold));
+}
+.resp-token {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem; font-weight: 700;
+  color: var(--terra); line-height: 1;
+}
+.resp-label {
+  font-size: .72rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.resp-val { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.resp-status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px; border-radius: 30px;
+  font-size: .82rem; font-weight: 700;
+  background: rgba(74,124,89,.12); color: var(--sage);
+  border: 1px solid rgba(74,124,89,.25);
+}
+.resp-api-raw {
+  background: var(--espresso); color: #c5e8b0;
+  border-radius: 10px; padding: 14px 16px;
+  font-family: 'Courier New', monospace; font-size: .78rem;
+  line-height: 1.6; overflow-x: auto; margin-top: 14px;
+}
+ 
+/* Section heading */
+.sec-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem; font-weight: 700;
+}
+.sec-h span { color: var(--terra); }
+ 
+/* ═══════════════════════════════════════════
+   ── ADMIN PAGE
+═══════════════════════════════════════════ */
+#pg-admin {
+  min-height: 100vh;
+  background: var(--cream);
+  flex-direction: row;
+}
+ 
+/* Sidebar */
+.adm-sidebar {
+  width: 248px; min-width: 248px;
+  background: var(--roast);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.adm-brand {
+  padding: 22px 20px;
+  border-bottom: 1px solid rgba(253,246,238,.08);
+  display: flex; align-items: center; gap: 10px;
+}
+.adm-brand-logo {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--terra), var(--gold));
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.adm-brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; font-weight: 700; color: var(--cream);
+}
+.adm-brand-name em { font-style:normal; color: var(--gold); }
+ 
+.adm-nav { padding: 14px 10px; flex: 1; }
+.adm-sec-label {
+  font-size: .67rem; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; color: rgba(253,246,238,.35);
+  padding: 10px 10px 6px;
+}
+.adm-link {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 14px; border-radius: 10px;
+  color: rgba(253,246,238,.6); font-size: .88rem; font-weight: 500;
+  cursor: pointer; transition: all .2s; margin-bottom: 1px;
+}
+.adm-link:hover { background: rgba(253,246,238,.08); color: var(--cream); }
+.adm-link.on {
+  background: rgba(192,98,47,.25);
+  color: var(--amber);
+  border: 1px solid rgba(192,98,47,.25);
+}
+.adm-link .bi { width: 18px; text-align: center; font-size: .95rem; }
+ 
+.adm-profile {
+  padding: 14px;
+  border-top: 1px solid rgba(253,246,238,.08);
+}
+.adm-prof-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(253,246,238,.06);
+}
+.adm-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--terra), var(--gold));
+  display: flex; align-items: center; justify-content: center; font-size: .85rem;
+}
+.adm-prof-name { font-size:.83rem; font-weight:600; color:var(--cream); }
+.adm-prof-role { font-size:.7rem; color:rgba(253,246,238,.4); }
+ 
+/* Admin main */
+.adm-main { flex: 1; overflow-y: auto; }
+ 
+.adm-topbar {
+  background: rgba(253,246,238,.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 10px rgba(26,14,8,.05);
+}
+.adm-topbar h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-weight: 700; margin: 0;
+}
+.tb-pill {
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px 12px;
+  font-size: .73rem; font-weight: 600; color: var(--terra);
+}
+ 
+/* Admin panels */
+.adm-panel { display: none; padding: 26px; }
+.adm-panel.on {
+  display: block;
+  animation: fadeUp .3s ease;
+}
+ 
+/* Stat tiles */
+.stat-tile {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: all .22s;
+}
+.stat-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.tile-icon {
+  width: 42px; height: 42px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; margin-bottom: 14px;
+}
+.tile-val   { font-family:'Cormorant Garamond',serif; font-size:1.85rem; font-weight:700; }
+.tile-label { color:var(--muted); font-size:.8rem; margin-top:2px; }
+ 
+/* Forms */
+.f-label {
+  font-size: .75rem; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px; display: block;
+}
+.f-input {
+  width: 100%; padding: 10px 14px;
+  background: var(--parchment);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-size: .9rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: border-color .2s, box-shadow .2s;
+}
+.f-input:focus {
+  outline: none;
+  border-color: var(--terra);
+  box-shadow: 0 0 0 3px rgba(192,98,47,.12);
+  background: #fff;
+}
+.f-input::placeholder { color: var(--muted); }
+ 
+.btn-terra {
+  background: linear-gradient(135deg, var(--terra), #a84e22);
+  color: #fff; border: none; border-radius: 10px;
+  padding: 10px 20px; font-weight: 700; font-size: .87rem;
+  cursor: pointer; transition: all .2s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-terra:hover { opacity:.88; transform:translateY(-1px); }
+ 
+/* Table */
+.fancy-wrap {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.fancy-tbl { margin: 0; color: var(--text); }
+.fancy-tbl thead th {
+  background: var(--parchment);
+  color: var(--muted); font-size: .72rem;
+  font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  border-top: none; white-space: nowrap;
+}
+.fancy-tbl tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle; font-size: .87rem;
+}
+.fancy-tbl tbody tr:last-child td { border-bottom: none; }
+.fancy-tbl tbody tr { transition: background .14s; }
+.fancy-tbl tbody tr:hover { background: var(--parchment); }
+ 
+/* Priority highlight */
+.row-high { border-left: 3px solid var(--terra); }
+ 
+/* Badges */
+.bpill {
+  padding: 3px 11px; border-radius: 20px;
+  font-size: .71rem; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.bp-green  { background:rgba(74,124,89,.12);  color:var(--sage);    border:1px solid rgba(74,124,89,.25); }
+.bp-amber  { background:rgba(212,163,74,.15); color:#9a7020;        border:1px solid rgba(212,163,74,.3); }
+.bp-terra  { background:rgba(192,98,47,.12);  color:var(--terra);   border:1px solid rgba(192,98,47,.25); }
+.bp-red    { background:rgba(176,48,48,.1);   color:var(--crimson); border:1px solid rgba(176,48,48,.22); }
+.bp-gray   { background:rgba(138,112,96,.1);  color:var(--muted);   border:1px solid rgba(138,112,96,.2); }
+.bp-blue   { background:rgba(46,61,90,.1);    color:#2e3d5a;        border:1px solid rgba(46,61,90,.2); }
+ 
+/* Icon action buttons */
+.act-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--parchment);
+  color: var(--muted); font-size: .85rem;
+  cursor: pointer; transition: all .18s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.act-btn:hover { background: var(--terra); color: #fff; border-color: var(--terra); }
+.act-btn.blue:hover  { background: #2e3d5a; border-color: #2e3d5a; }
+.act-btn.sage:hover  { background: var(--sage); border-color: var(--sage); }
+.act-btn.red:hover   { background: var(--crimson); border-color: var(--crimson); }
+ 
+/* Toggle */
+.tgl-wrap { position: relative; width: 44px; height: 23px; }
+.tgl-wrap input { display: none; }
+.tgl-track {
+  position: absolute; inset: 0; cursor: pointer;
+  background: var(--bisque); border: 1px solid var(--border);
+  border-radius: 30px; transition: all .25s;
+}
+.tgl-track::before {
+  content: ''; position: absolute;
+  width: 15px; height: 15px; border-radius: 50%;
+  left: 3px; top: 50%; transform: translateY(-50%);
+  background: var(--muted); transition: all .25s;
+}
+input:checked + .tgl-track { background: rgba(74,124,89,.18); border-color: var(--sage); }
+input:checked + .tgl-track::before { left: calc(100% - 18px); background: var(--sage); }
+ 
+/* API response display */
+.api-resp-box {
+  display: none;
+  margin-top: 12px;
+  background: var(--espresso); color: #a8d890;
+  border-radius: 10px; padding: 14px 16px;
+  font-family: 'Courier New', monospace; font-size: .78rem; line-height: 1.6;
+  overflow-x: auto;
+  animation: fadeUp .3s ease;
+}
+.api-resp-box.show { display: block; }
+ 
+/* Toast */
+.toast-stack {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+}
+.t-item {
+  background: var(--roast); color: var(--cream);
+  border-radius: 12px; padding: 13px 18px;
+  display: flex; align-items: center; gap: 11px;
+  min-width: 270px;
+  border-left: 3px solid var(--terra);
+  box-shadow: var(--shadow-md);
+  animation: slideToast .3s ease;
+  font-size: .87rem;
+}
+@keyframes slideToast {
+  from { opacity:0; transform:translateX(30px); }
+  to   { opacity:1; transform:none; }
+}
+.t-fade { animation: fadeToast .3s ease forwards; }
+@keyframes fadeToast {
+  to { opacity:0; transform:translateX(30px); }
+}
+ 
+/* Loading spinner */
+.spin {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+ 
+/* Responsive */
+@media(max-width:768px) {
+  .adm-sidebar { display: none; }
+  .c-hero { padding: 32px 20px; }
+  .hero-deco { display: none; }
+  .adm-panel { padding: 14px; }
+  .cart-panel { width: 100vw; }
+}
+</style>
+</head>
+<body>
+ 
+<!-- ═══════════════════ TOAST STACK ═══════════════════ -->
+<div class="toast-stack" id="toasts"></div>
+ 
+ 
+<!-- ═══════════════════════════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════════════════════════ -->
+<div id="pg-login" class="page-flex active">
+  <div class="login-glass">
+ 
+    <div class="login-logomark">🍽️</div>
+ 
+    <h1>Folio</h1>
+    <p class="login-tagline">
+      Smart Take-Away Management<br>
+      for the modern restaurant
+    </p>
+ 
+    <!-- Customer Login -->
+    <button class="login-btn btn-customer" onclick="navigate('pg-customer')">
+      <span class="btn-icon">🛒</span>
+      Login as Customer
+      <i class="bi bi-arrow-right btn-arrow"></i>
+    </button>
+ 
+    <!-- Admin Login -->
+    <button class="login-btn btn-admin" onclick="navigate('pg-admin')">
+      <span class="btn-icon">🛡️</span>
+      Login as Admin
+      <i class="bi bi-arrow-right btn-arrow"></i>
+    </button>
+ 
+    <div class="login-footer">
+      <span><i class="bi bi-shield-check"></i> Secure</span>
+      <span><i class="bi bi-lightning-charge"></i> Fast</span>
+      <span><i class="bi bi-stars"></i> Elegant</span>
+    </div>
+  </div>
+</div>
+ 
+ 
+<!-- ═══════════════════════════════════════════════════
+     CUSTOMER PAGE
+═══════════════════════════════════════════════════ -->
+<div id="pg-customer" class="page">
+ 
+  <!-- Top bar -->
+  <div class="top-bar">
+    <span class="top-bar-brand"><em>F</em>olio</span>
+    <span class="top-bar-chip">Customer</span>
+    <div class="ms-auto d-flex gap-2">
+      <div class="icon-pill" title="Search"><i class="bi bi-search"></i></div>
+      <div class="icon-pill" title="Cart" id="cart-pill" onclick="openCart()">
+        <i class="bi bi-bag"></i>
+        <span class="cart-dot" id="cart-dot" style="display:none">0</span>
+      </div>
+      <div class="icon-pill" title="Logout" onclick="navigate('pg-login')">
+        <i class="bi bi-box-arrow-right"></i>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Hero Banner -->
+  <div class="c-hero">
+    <div style="position:relative;z-index:1">
+      <div class="hero-kicker"><i class="bi bi-fire"></i> Fresh Today</div>
+      <h2>Order Fresh,<br><em>Pick Up Fast</em></h2>
+      <p>Browse today's menu, build your cart, and enjoy hot food in minutes.</p>
+    </div>
+    <div class="hero-deco">
+      <span>🍛</span><span>🥢</span><span>🍫</span>
+    </div>
+  </div>
+ 
+  <!-- Menu -->
+  <div class="container-fluid px-3 px-md-5 py-4">
+ 
+    <!-- Category chips -->
+    <div class="chip-row mb-4" id="chip-row">
+      <button class="chip on" onclick="filterCat('all',this)">🍽️ All</button>
+      <button class="chip" onclick="filterCat('main',this)">🥘 Mains</button>
+      <button class="chip" onclick="filterCat('rice',this)">🍚 Rice</button>
+      <button class="chip" onclick="filterCat('snack',this)">🥢 Snacks</button>
+      <button class="chip" onclick="filterCat('dessert',this)">🍫 Sweets</button>
+      <button class="chip" onclick="filterCat('drink',this)">🥤 Drinks</button>
+    </div>
+ 
+    <div class="sec-h mb-3">Today's <span>Menu</span></div>
+    <div class="row g-3" id="menu-grid"></div>
+ 
+    <!-- Order response -->
+    <div id="order-response-section" class="mt-5">
+      <div class="sec-h mb-3">Your <span>Order</span></div>
+      <div class="row g-3">
+        <!-- Token & amount from backend -->
+        <div class="col-md-4">
+          <div class="order-resp-card">
+            <div class="resp-label">Token Number</div>
+            <div class="resp-token" id="resp-token">—</div>
+            <hr style="border-color:var(--border);margin:14px 0">
+            <div class="resp-label">Total Amount</div>
+            <div class="resp-val" id="resp-total">—</div>
+            <div class="mt-2 resp-label">Payment</div>
+            <div class="resp-val" id="resp-payment">—</div>
+            <div class="mt-2 resp-label">Status</div>
+            <div id="resp-status"></div>
+          </div>
+        </div>
+        <!-- Raw API response -->
+        <div class="col-md-8">
+          <div class="order-resp-card h-100">
+            <div class="resp-label mb-2">Backend Response (Raw)</div>
+            <div class="resp-api-raw" id="resp-raw">{ }</div>
+            <div class="mt-3 resp-label">Items Ordered</div>
+            <div id="resp-items" class="mt-1 d-flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div style="height:60px"></div>
+  </div>
+</div><!-- /pg-customer -->
+ 
+ 
+<!-- CART SCRIM + DRAWER -->
+<div class="cart-scrim" id="cart-scrim" onclick="closeCart()"></div>
+<div class="cart-panel" id="cart-panel">
+ 
+  <div class="cart-hd">
+    <i class="bi bi-bag-fill" style="color:var(--terra);font-size:1.1rem"></i>
+    <h5>Your Cart</h5>
+    <div class="close-x" onclick="closeCart()"><i class="bi bi-x-lg"></i></div>
+  </div>
+ 
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty" id="cart-empty">
+      <div class="ce-icon">🛒</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;margin-bottom:6px">
+        Empty cart
+      </div>
+      <div style="font-size:.83rem">Add items from the menu!</div>
+    </div>
+    <div id="cart-rows"></div>
+  </div>
+ 
+  <div class="cart-ft" id="cart-ft">
+    <!--
+      ⚠️ NO TOTAL DISPLAYED HERE.
+      Total will come from the backend /place_order response.
+    -->
+    <div class="cart-note">
+      <i class="bi bi-info-circle me-1"></i>
+      Total & token are calculated by the server and shown after placing order.
+    </div>
+    <button class="btn-place" id="btn-place" onclick="placeOrder()" disabled>
+      <i class="bi bi-check2-circle"></i> Place Order
+    </button>
+  </div>
+</div>
+ 
+ 
+<!-- ═══════════════════════════════════════════════════
+     ADMIN PAGE
+═══════════════════════════════════════════════════ -->
+<div id="pg-admin" class="page-flex">
+ 
+  <!-- Sidebar -->
+  <aside class="adm-sidebar">
+    <div class="adm-brand">
+      <div class="adm-brand-logo">🍽️</div>
+      <div class="adm-brand-name">Foli<em>o</em></div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-sec-label">Overview</div>
+      <div class="adm-link on" onclick="showPanel('pn-overview',this)">
+        <i class="bi bi-grid-fill"></i> Dashboard
+      </div>
+      <div class="adm-sec-label">Manage</div>
+      <div class="adm-link" onclick="showPanel('pn-food',this)">
+        <i class="bi bi-egg-fried"></i> Food Items
+      </div>
+      <div class="adm-link" onclick="showPanel('pn-orders',this)">
+        <i class="bi bi-receipt"></i> Orders
+        <span class="bpill bp-terra ms-auto" id="pending-badge">0</span>
+      </div>
+      <div class="adm-sec-label">Account</div>
+      <div class="adm-link" onclick="navigate('pg-login')">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </div>
+    </nav>
+    <div class="adm-profile">
+      <div class="adm-prof-card">
+        <div class="adm-avatar">👨‍🍳</div>
+        <div>
+          <div class="adm-prof-name">Chef Admin</div>
+          <div class="adm-prof-role">Restaurant Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+ 
+  <!-- Admin Main -->
+  <div class="adm-main">
+ 
+    <!-- Topbar -->
+    <div class="adm-topbar">
+      <h4 id="adm-panel-title">Dashboard</h4>
+      <span class="tb-pill" id="adm-panel-sub">Overview</span>
+      <div class="ms-auto d-flex gap-2">
+        <div class="icon-pill" onclick="loadOrders()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></div>
+      </div>
+    </div>
+ 
+    <!-- ── OVERVIEW PANEL ── -->
+    <div class="adm-panel on" id="pn-overview">
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-tile">
+            <div class="tile-icon" style="background:rgba(192,98,47,.12)">
+              <i class="bi bi-receipt" style="color:var(--terra)"></i>
+            </div>
+            <div class="tile-val" id="ov-orders">—</div>
+            <div class="tile-label">Total Orders</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-tile">
+            <div class="tile-icon" style="background:rgba(74,124,89,.1)">
+              <i class="bi bi-currency-rupee" style="color:var(--sage)"></i>
+            </div>
+            <div class="tile-val" id="ov-revenue">—</div>
+            <div class="tile-label">Revenue (Server)</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-tile">
+            <div class="tile-icon" style="background:rgba(212,163,74,.12)">
+              <i class="bi bi-hourglass-split" style="color:var(--gold)"></i>
+            </div>
+            <div class="tile-val" id="ov-pending">—</div>
+            <div class="tile-label">Pending</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-tile">
+            <div class="tile-icon" style="background:rgba(46,61,90,.1)">
+              <i class="bi bi-egg-fried" style="color:#2e3d5a"></i>
+            </div>
+            <div class="tile-val" id="ov-items">—</div>
+            <div class="tile-label">Menu Items</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="sec-h mb-3">Recent <span>Orders</span></div>
+      <div class="fancy-wrap">
+        <table class="table fancy-tbl">
+          <thead><tr>
+            <th>Token</th><th>Items</th><th>Amount</th><th>Priority</th><th>Status</th>
+          </tr></thead>
+          <tbody id="ov-orders-tbody">
+            <tr><td colspan="5" class="text-center text-muted py-3">Loading from server…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+ 
+    <!-- ── FOOD PANEL ── -->
+    <div class="adm-panel" id="pn-food">
+      <div class="row g-4">
+ 
+        <!-- Add food form -->
+        <div class="col-lg-5">
+          <div class="order-resp-card">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;margin-bottom:20px">
+              <i class="bi bi-plus-circle-fill me-2" style="color:var(--terra)"></i>Add New Item
+            </div>
+            <div class="mb-3">
+              <label class="f-label">Item Name</label>
+              <input class="f-input" id="af-name" placeholder="e.g. Paneer Tikka"/>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="f-label">Price (₹)</label>
+                <input class="f-input" type="number" id="af-price" placeholder="180"/>
+              </div>
+              <div class="col-6">
+                <label class="f-label">Category</label>
+                <select class="f-input" id="af-cat">
+                  <option value="main">Main Course</option>
+                  <option value="rice">Rice & Biryani</option>
+                  <option value="snack">Snacks</option>
+                  <option value="dessert">Desserts</option>
+                  <option value="drink">Beverages</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="f-label">Emoji Icon</label>
+              <input class="f-input" id="af-emoji" placeholder="🍛"/>
+            </div>
+            <div class="mb-4">
+              <label class="f-label">Description</label>
+              <input class="f-input" id="af-desc" placeholder="Short description…"/>
+            </div>
+            <button class="btn-terra w-100" onclick="addFood()">
+              <i class="bi bi-cloud-upload"></i> Send to /add_food
+            </button>
+            <!-- Shows raw server reply -->
+            <div class="api-resp-box" id="af-resp"></div>
+          </div>
+        </div>
+ 
+        <!-- Food table -->
+        <div class="col-lg-7">
+          <div class="sec-h mb-3">Menu <span>Items</span></div>
+          <div class="fancy-wrap">
+            <table class="table fancy-tbl">
+              <thead><tr>
+                <th>Item</th><th>Price</th><th>Category</th>
+                <th>Available</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="food-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ── ORDERS PANEL ── -->
+    <div class="adm-panel" id="pn-orders">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="sec-h">All <span>Orders</span></div>
+        <button class="btn-terra" onclick="loadOrders()">
+          <i class="bi bi-arrow-clockwise"></i> Fetch /get_orders
+        </button>
+      </div>
+ 
+      <div class="fancy-wrap">
+        <table class="table fancy-tbl">
+          <thead><tr>
+            <th>Token</th><th>Items</th>
+            <th>Amount</th><th>Priority</th>
+            <th>Payment</th><th>Delivery</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+ 
+      <!-- API response display -->
+      <div class="api-resp-box mt-3" id="orders-resp"></div>
+    </div>
+ 
+  </div><!-- /adm-main -->
+</div><!-- /pg-admin -->
+ 
+ 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+ 
+<script>
+/*
+ * ════════════════════════════════════════════════════════
+ *  FOLIO — FRONTEND ONLY
+ *  ✅ Collects input
+ *  ✅ Sends fetch() requests
+ *  ✅ Displays server responses
+ *  🚫 NO calculation logic
+ *  🚫 NO token generation
+ *  🚫 NO total computation
+ *  🚫 NO priority logic
+ * ════════════════════════════════════════════════════════
+ */
+ 
+/* ─── STATIC MENU DATA (display only, no logic) ─── */
+const MENU = [
+  { id:1,  name:'Paneer Butter Masala', emoji:'🧆', price:'₹180', desc:'Creamy tomato gravy with soft paneer',   cat:'main',    avail:true  },
+  { id:2,  name:'Veg Biryani',          emoji:'🍚', price:'₹150', desc:'Fragrant basmati with seasonal veggies', cat:'rice',    avail:true  },
+  { id:3,  name:'Chicken Tikka',        emoji:'🍗', price:'₹220', desc:'Smoky grilled chicken, mint chutney',    cat:'main',    avail:true  },
+  { id:4,  name:'Masala Dosa',          emoji:'🫓', price:'₹90',  desc:'Crispy dosa with potato masala',         cat:'snack',   avail:true  },
+  { id:5,  name:'Dal Makhani',          emoji:'🥣', price:'₹130', desc:'Slow-cooked lentils, buttery gravy',     cat:'main',    avail:false },
+  { id:6,  name:'Grilled Fish',         emoji:'🐟', price:'₹260', desc:'Spiced grilled fish, lemon & herbs',     cat:'main',    avail:true  },
+  { id:7,  name:'Veg Spring Rolls',     emoji:'🥢', price:'₹110', desc:'Crispy rolls stuffed with veggies',      cat:'snack',   avail:true  },
+  { id:8,  name:'Chocolate Brownie',    emoji:'🍫', price:'₹80',  desc:'Warm fudgy brownie with ice cream',      cat:'dessert', avail:true  },
+  { id:9,  name:'Mango Lassi',          emoji:'🥭', price:'₹70',  desc:'Chilled mango yogurt drink',             cat:'drink',   avail:true  },
+  { id:10, name:'Hyderabadi Biryani',   emoji:'🍛', price:'₹230', desc:'Dum biryani with raita & salan',         cat:'rice',    avail:true  },
+];
+ 
+/*
+ * Cart stores ONLY item references — no totals.
+ * cart = { itemId: { item: {...}, qty: Number } }
+ */
+let cart = {};
+let activeFilter = 'all';
+ 
+/* ════════════════════════════════════════════════════════
+   PAGE NAVIGATION
+════════════════════════════════════════════════════════ */
+function navigate(pageId) {
+  /* Hide all pages */
+  document.querySelectorAll('.page, .page-flex').forEach(p => {
+    p.classList.remove('active');
+  });
+  const target = document.getElementById(pageId);
+  target.classList.add('active');
+ 
+  /* Side-effects */
+  if (pageId === 'pg-customer') renderMenu();
+  if (pageId === 'pg-admin')    initAdmin();
+}
+ 
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+function toast(msg, icon = '✅') {
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 't-item';
+  el.innerHTML = `<span style="font-size:1.1rem">${icon}</span><span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(() => { el.classList.add('t-fade'); setTimeout(() => el.remove(), 320); }, 3200);
+}
+ 
+/* ════════════════════════════════════════════════════════
+   MENU RENDERING (display only)
+════════════════════════════════════════════════════════ */
+function renderMenu() {
+  const grid = document.getElementById('menu-grid');
+  const list = activeFilter === 'all' ? MENU : MENU.filter(m => m.cat === activeFilter);
+ 
+  grid.innerHTML = list.map(item => {
+    const inCart = cart[item.id] ? cart[item.id].qty : 0;
+    return `
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="menu-card">
+        <div class="menu-thumb">
+          ${item.emoji}
+          <span class="avail-flag ${item.avail ? 'af-yes' : 'af-no'}">
+            ${item.avail ? '● Available' : '● Unavailable'}
+          </span>
+        </div>
+        <div class="menu-body">
+          <div class="menu-title">${item.name}</div>
+          <div class="menu-desc">${item.desc}</div>
+          <div class="menu-price">${item.price}</div>
+ 
+          ${inCart > 0
+            ? `<div class="qty-row">
+                <button class="q-btn" onclick="cartQty(${item.id}, -1)">−</button>
+                <span class="q-num">${inCart}</span>
+                <button class="q-btn" onclick="cartQty(${item.id}, +1)">+</button>
+               </div>`
+            : `<button class="btn-add" ${!item.avail ? 'disabled' : ''}
+                 onclick="cartAdd(${item.id})">
+                 <i class="bi bi-plus-circle-fill"></i> Add to Cart
+               </button>`
+          }
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
+function filterCat(cat, el) {
+  activeFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderMenu();
+}
+ 
+/* ════════════════════════════════════════════════════════
+   CART (UI only — no calculations)
+════════════════════════════════════════════════════════ */
+function cartAdd(id) {
+  const item = MENU.find(m => m.id === id);
+  if (!item || !item.avail) return;
+  /* Add or increment — qty tracked for sending to backend */
+  if (cart[id]) cart[id].qty += 1;
+  else          cart[id] = { item, qty: 1 };
+  syncCartUI();
+  toast(`${item.emoji} ${item.name} added`, '🛒');
+}
+ 
+function cartQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  syncCartUI();
+  renderMenu();
+}
+ 
+/* Update badge & drawer without any calculations */
+function syncCartUI() {
+  const entries = Object.values(cart);
+  const totalQty = entries.reduce((s, e) => s + e.qty, 0);
+ 
+  /* Badge */
+  const dot = document.getElementById('cart-dot');
+  dot.textContent = totalQty;
+  dot.style.display = totalQty > 0 ? 'flex' : 'none';
+ 
+  /* Place Order button enabled if cart not empty */
+  document.getElementById('btn-place').disabled = totalQty === 0;
+ 
+  /* Cart drawer rows */
+  const emptyEl = document.getElementById('cart-empty');
+  const rowsEl  = document.getElementById('cart-rows');
+ 
+  if (entries.length === 0) {
+    emptyEl.style.display = 'block';
+    rowsEl.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  rowsEl.innerHTML = entries.map(({ item, qty }) => `
+    <div class="cart-row">
+      <span class="cr-emoji">${item.emoji}</span>
+      <div class="cr-info">
+        <div class="cr-name">${item.name}</div>
+        <div class="cr-price">${item.price} &times; ${qty}</div>
+      </div>
+      <div class="qty-row" style="margin-top:0">
+        <button class="q-btn" onclick="cartQty(${item.id}, -1)">−</button>
+        <span class="q-num">${qty}</span>
+        <button class="q-btn" onclick="cartQty(${item.id}, +1)">+</button>
+      </div>
+    </div>`).join('');
+ 
+  renderMenu();
+}
+ 
+function openCart()  {
+  document.getElementById('cart-scrim').classList.add('on');
+  document.getElementById('cart-panel').classList.add('on');
+}
+function closeCart() {
+  document.getElementById('cart-scrim').classList.remove('on');
+  document.getElementById('cart-panel').classList.remove('on');
+}
+ 
+/* ════════════════════════════════════════════════════════
+   PLACE ORDER  →  POST /place_order
+   Sends: items array (id, name, qty)
+   Displays: whatever backend returns (token, total, status)
+════════════════════════════════════════════════════════ */
+async function placeOrder() {
+  const entries = Object.values(cart);
+  if (!entries.length) return;
+ 
+  const btn = document.getElementById('btn-place');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Placing…';
+ 
+  /* Build payload — only IDs, names, quantities. NO prices or totals. */
+  const payload = {
+    items: entries.map(({ item, qty }) => ({
+      id:   item.id,
+      name: item.name,
+      qty:  qty
+    }))
+  };
+ 
+  try {
+    const res  = await fetch('/place_order', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+ 
+    /* Display raw response exactly as server sends it */
+    const data = await res.json();
+    displayOrderResponse(data, payload);
+ 
+    /* Clear cart after successful order */
+    cart = {};
+    syncCartUI();
+    closeCart();
+ 
+    toast('Order placed! Check your token below.', '🎉');
+ 
+  } catch (err) {
+    /* Connection error — show raw error, no fallback logic */
+    document.getElementById('order-response-section').style.display = 'block';
+    document.getElementById('resp-raw').textContent =
+      'Error: Could not reach server.\n' + err.message;
+    document.getElementById('resp-token').textContent   = 'N/A';
+    document.getElementById('resp-total').textContent   = 'N/A';
+    document.getElementById('resp-payment').textContent = 'N/A';
+    document.getElementById('resp-status').innerHTML    =
+      '<span class="bpill bp-red"><i class="bi bi-x-circle"></i> Connection Failed</span>';
+    toast('Server unreachable. Check backend.', '❌');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2-circle"></i> Place Order';
+  }
+}
+ 
+/* Render backend response — display only, zero logic */
+function displayOrderResponse(data, payload) {
+  document.getElementById('order-response-section').style.display = 'block';
+  document.getElementById('order-response-section')
+          .scrollIntoView({ behavior: 'smooth', block: 'start' });
+ 
+  /* Token — from server */
+  document.getElementById('resp-token').textContent =
+    data.token ?? data.token_number ?? '—';
+ 
+  /* Total — from server */
+  document.getElementById('resp-total').textContent =
+    data.total != null ? '₹' + data.total : (data.total_amount ?? '—');
+ 
+  /* Payment status — from server */
+  document.getElementById('resp-payment').textContent =
+    data.payment_status ?? data.payment ?? '—';
+ 
+  /* Delivery status badge — from server */
+  const statusMap = {
+    'confirmed':        'bp-amber',
+    'preparing':        'bp-terra',
+    'ready':            'bp-green',
+    'ready for pickup': 'bp-green',
+  };
+  const rawStatus = (data.status ?? data.order_status ?? 'Confirmed');
+  const cls = statusMap[(rawStatus + '').toLowerCase()] ?? 'bp-gray';
+  document.getElementById('resp-status').innerHTML =
+    `<span class="bpill ${cls}"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> ${rawStatus}</span>`;
+ 
+  /* Raw JSON */
+  document.getElementById('resp-raw').textContent =
+    JSON.stringify(data, null, 2);
+ 
+  /* Items sent (echoed for clarity) */
+  document.getElementById('resp-items').innerHTML =
+    payload.items.map(i =>
+      `<span class="bpill bp-gray">${i.name} ×${i.qty}</span>`
+    ).join('');
+}
+ 
+/* ════════════════════════════════════════════════════════
+   ADMIN INIT
+════════════════════════════════════════════════════════ */
+function initAdmin() {
+  renderFoodTable();
+  loadOrders();
+}
+ 
+function showPanel(id, el) {
+  document.querySelectorAll('.adm-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.adm-link').forEach(l => l.classList.remove('on'));
+  el.classList.add('on');
+ 
+  const map = {
+    'pn-overview': ['Dashboard','Overview'],
+    'pn-food':     ['Food Items','Manage'],
+    'pn-orders':   ['Orders','Manage']
+  };
+  const t = map[id] ?? ['Panel',''];
+  document.getElementById('adm-panel-title').textContent = t[0];
+  document.getElementById('adm-panel-sub').textContent   = t[1];
+ 
+  if (id === 'pn-orders') loadOrders();
+}
+ 
+/* ════════════════════════════════════════════════════════
+   ADD FOOD  →  POST /add_food
+   Sends form fields; displays server reply only
+════════════════════════════════════════════════════════ */
+async function addFood() {
+  const payload = {
+    name:     document.getElementById('af-name').value.trim(),
+    price:    document.getElementById('af-price').value.trim(),
+    category: document.getElementById('af-cat').value,
+    emoji:    document.getElementById('af-emoji').value.trim() || '🍽️',
+    desc:     document.getElementById('af-desc').value.trim()
+  };
+ 
+  if (!payload.name || !payload.price) {
+    toast('Name and price are required', '⚠️'); return;
+  }
+ 
+  const respEl = document.getElementById('af-resp');
+  respEl.classList.remove('show');
+  respEl.textContent = '';
+ 
+  try {
+    const res  = await fetch('/add_food', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    const data = await res.json();
+ 
+    /* Display raw server reply */
+    respEl.textContent = JSON.stringify(data, null, 2);
+    respEl.classList.add('show');
+ 
+    toast('Food item sent to server', '🍽️');
+ 
+    /* If server confirms success, add to local display array */
+    if (data.success || data.id || res.ok) {
+      MENU.push({
+        id:    data.id ?? (Date.now()),
+        name:  payload.name,
+        emoji: payload.emoji,
+        price: '₹' + payload.price,
+        desc:  payload.desc,
+        cat:   payload.category,
+        avail: true
+      });
+      renderFoodTable();
+      /* Clear form */
+      ['af-name','af-price','af-emoji','af-desc'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+  } catch (err) {
+    respEl.textContent = 'Error: ' + err.message;
+    respEl.classList.add('show');
+    toast('Server unreachable', '❌');
+  }
+}
+ 
+/* ════════════════════════════════════════════════════════
+   FOOD TABLE (display from MENU array)
+════════════════════════════════════════════════════════ */
+function renderFoodTable() {
+  document.getElementById('ov-items').textContent = MENU.length;
+  document.getElementById('food-tbody').innerHTML = MENU.map(item => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.5rem">${item.emoji}</span>
+          <div>
+            <div style="font-weight:600">${item.name}</div>
+            <div style="color:var(--muted);font-size:.74rem">${item.desc}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--terra);font-weight:700">${item.price}</td>
+      <td><span class="bpill bp-blue">${item.cat}</span></td>
+      <td>
+        <label class="tgl-wrap">
+          <input type="checkbox" ${item.avail ? 'checked' : ''}
+            onchange="toggleAvail(${item.id})">
+          <span class="tgl-track"></span>
+        </label>
+      </td>
+      <td>
+        <div class="d-flex gap-1">
+          <button class="act-btn" title="Edit Price"
+            onclick="editPrice(${item.id}, '${item.name}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="act-btn red" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+ 
+function toggleAvail(id) {
+  /* Only updates local display — backend call can be added here */
+  const item = MENU.find(m => m.id === id);
+  if (item) {
+    item.avail = !item.avail;
+    toast(`${item.name} ${item.avail ? 'enabled' : 'disabled'}`, item.avail ? '✅' : '🔴');
+    renderFoodTable();
+  }
+}
+ 
+function editPrice(id, name) {
+  const newPrice = prompt(`New price for "${name}" (numbers only):`);
+  if (newPrice === null || newPrice.trim() === '') return;
+  /* Could send to backend here — for now just show intent */
+  toast(`Price update for ${name} → ₹${newPrice} (send to backend)`, '✏️');
+  const item = MENU.find(m => m.id === id);
+  if (item) { item.price = '₹' + newPrice; renderFoodTable(); }
+}
+ 
+/* ════════════════════════════════════════════════════════
+   LOAD ORDERS  →  GET /get_orders
+   Displays server response directly
+════════════════════════════════════════════════════════ */
+async function loadOrders() {
+  const tbody   = document.getElementById('orders-tbody');
+  const ovTbody = document.getElementById('ov-orders-tbody');
+  const respEl  = document.getElementById('orders-resp');
+ 
+  tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3" style="color:var(--muted)">
+    Fetching from /get_orders…</td></tr>`;
+ 
+  try {
+    const res  = await fetch('/get_orders');
+    const data = await res.json();
+ 
+    /* Show raw response */
+    respEl.textContent = JSON.stringify(data, null, 2);
+    respEl.classList.add('show');
+ 
+    /* Render whatever the server sends */
+    const orders = Array.isArray(data) ? data : (data.orders ?? []);
+ 
+    if (!orders.length) {
+      tbody.innerHTML   = `<tr><td colspan="7" class="text-center py-3" style="color:var(--muted)">No orders returned by server.</td></tr>`;
+      ovTbody.innerHTML = `<tr><td colspan="5"  class="text-center py-3" style="color:var(--muted)">No orders yet.</td></tr>`;
+      updateAdminStats(orders);
+      return;
+    }
+ 
+    /* Orders table */
+    tbody.innerHTML = orders.map(o => `
+      <tr class="${(o.priority ?? '').toLowerCase() === 'high' ? 'row-high' : ''}">
+        <td><strong>${o.token ?? o.token_number ?? '—'}</strong>
+            <br><span style="color:var(--muted);font-size:.72rem">${o.time ?? ''}</span></td>
+        <td style="max-width:180px">
+          ${(o.items ?? []).map(i => `<span class="bpill bp-gray">${i.name ?? i} ×${i.qty ?? ''}</span> `).join('') || '—'}
+        </td>
+        <td style="color:var(--terra);font-weight:700">
+          ${o.total != null ? '₹'+o.total : (o.total_amount ?? '—')}
+        </td>
+        <td>
+          ${(o.priority ?? '').toLowerCase() === 'high'
+            ? '<span class="bpill bp-terra">🔥 High</span>'
+            : '<span class="bpill bp-blue">🟢 Normal</span>'}
+        </td>
+        <td>${paymentBadge(o.payment_status ?? o.payment)}</td>
+        <td>${deliveryBadge(o.delivery_status ?? o.status)}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <button class="act-btn sage" title="Mark Paid"
+              onclick="updatePayment('${o.token ?? o.id}')">
+              <i class="bi bi-credit-card"></i>
+            </button>
+            <button class="act-btn" title="Mark Ready"
+              onclick="updateDelivery('${o.token ?? o.id}')">
+              <i class="bi bi-check2-all"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`).join('');
+ 
+    /* Overview mini-table (first 5) */
+    ovTbody.innerHTML = orders.slice(0,5).map(o => `
+      <tr>
+        <td><strong>${o.token ?? o.token_number ?? '—'}</strong></td>
+        <td>${(o.items ?? []).map(i => `${i.name ?? i}×${i.qty ?? ''}`).join(', ') || '—'}</td>
+        <td style="color:var(--terra);font-weight:700">
+          ${o.total != null ? '₹'+o.total : (o.total_amount ?? '—')}
+        </td>
+        <td>
+          ${(o.priority ?? '').toLowerCase() === 'high'
+            ? '<span class="bpill bp-terra">🔥 High</span>'
+            : '<span class="bpill bp-blue">Normal</span>'}
+        </td>
+        <td>${deliveryBadge(o.delivery_status ?? o.status)}</td>
+      </tr>`).join('');
+ 
+    updateAdminStats(orders);
+ 
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3" style="color:var(--crimson)">
+      Failed to fetch: ${err.message}</td></tr>`;
+    respEl.textContent = 'Error: ' + err.message;
+    respEl.classList.add('show');
+  }
+}
+ 
+/* Display-only stat update (counts come from server array) */
+function updateAdminStats(orders) {
+  document.getElementById('ov-orders').textContent  = orders.length;
+  /* Revenue NOT calculated here — read from server if available */
+  const serverRevenue = orders.reduce
+    ? '—' /* ← deliberately not summing */
+    : '—';
+  document.getElementById('ov-revenue').textContent =
+    orders[0]?.total_revenue != null ? '₹' + orders[0].total_revenue : '—';
+  document.getElementById('ov-pending').textContent =
+    orders.filter(o => (o.status ?? '').toLowerCase() !== 'ready').length;
+  document.getElementById('pending-badge').textContent =
+    orders.filter(o => (o.status ?? '').toLowerCase() !== 'ready').length;
+}
+ 
+/* ════════════════════════════════════════════════════════
+   UPDATE PAYMENT  →  POST /update_payment
+════════════════════════════════════════════════════════ */
+async function updatePayment(token) {
+  try {
+    const res  = await fetch('/update_payment', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token })
+    });
+    const data = await res.json();
+    toast(`Payment update: ${JSON.stringify(data)}`, '💳');
+    loadOrders(); /* Refresh table from server */
+  } catch (err) {
+    toast('Error: ' + err.message, '❌');
+  }
+}
+ 
+/* ════════════════════════════════════════════════════════
+   UPDATE DELIVERY  →  POST /update_status
+════════════════════════════════════════════════════════ */
+async function updateDelivery(token) {
+  try {
+    const res  = await fetch('/update_status', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token })
+    });
+    const data = await res.json();
+    toast(`Status update: ${JSON.stringify(data)}`, '✅');
+    loadOrders(); /* Refresh table from server */
+  } catch (err) {
+    toast('Error: ' + err.message, '❌');
+  }
+}
+ 
+/* ─── Badge helpers (display only) ─── */
+function paymentBadge(s) {
+  const v = (s ?? '').toLowerCase();
+  if (v === 'paid')    return '<span class="bpill bp-green"><i class="bi bi-check-circle-fill"></i> Paid</span>';
+  if (v === 'pending') return '<span class="bpill bp-amber"><i class="bi bi-clock"></i> Pending</span>';
+  return `<span class="bpill bp-gray">${s ?? '—'}</span>`;
+}
+function deliveryBadge(s) {
+  const v = (s ?? '').toLowerCase();
+  if (v.includes('ready')) return '<span class="bpill bp-green"><i class="bi bi-check2-all"></i> Ready</span>';
+  if (v.includes('prep'))  return '<span class="bpill bp-terra"><i class="bi bi-fire"></i> Preparing</span>';
+  if (v.includes('conf'))  return '<span class="bpill bp-amber"><i class="bi bi-clock"></i> Confirmed</span>';
+  return `<span class="bpill bp-gray">${s ?? '—'}</span>`;
+}
+ 
+/* Init */
+renderMenu();
+</script>
+</body>
+</html>
